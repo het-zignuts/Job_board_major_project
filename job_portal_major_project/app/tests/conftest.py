@@ -12,6 +12,8 @@ from app.db.session import db_session_manager
 from app.tests.factory import user_payload
 from sqlalchemy import text
 
+os.environ["ENV"] = "test"
+
 TEST_DATABASE_URL=Config.TEST_DATABASE_URL
 
 engine=create_engine(TEST_DATABASE_URL, echo=True)
