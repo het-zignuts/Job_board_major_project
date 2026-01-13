@@ -3,7 +3,7 @@ from typing import Optional, TYPE_CHECKING, List
 from app.core.enum import UserRole
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
-form sqlalchemy import Column, String
+from sqlalchemy import Column, String
 # from sqlalchemy.orm import Mapped, relationship
 
 if TYPE_CHECKING:
