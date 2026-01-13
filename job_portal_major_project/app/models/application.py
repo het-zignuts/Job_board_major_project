@@ -3,8 +3,7 @@ from typing import Optional, TYPE_CHECKING
 from app.core.enum import ApplicationStatus
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
-# from sqlalchemy.orm import Mapped, relationshp
-# from app.models.job import Job
+from sqlalchemy import COLUMN, String
 
 if TYPE_CHECKING:
     from app.models.job import Job
