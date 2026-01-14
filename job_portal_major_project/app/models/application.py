@@ -17,7 +17,7 @@ class Application(SQLModel, table=True):
     resume_filename: str = Field(nullable=False)
     resume_path: str = Field(nullable=False)
     message : Optional[str] = Field(default=None, nullable=True)
-    status: ApplicationStatus = Field(sa_column=Enum(ApplicationStatus, name="applicationstatus", native_enum=True, validate_strings=True), default=ApplicationStatus.APPLIED, nullable=False)
+    status: ApplicationStatus = Field(sa_column=Enum(ApplicationStatus, name="applicationstatus", native_enum=True, validate_strings=True, nullable=False), default=ApplicationStatus.APPLIED)
     applied_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at: Optional[datetime] = Field(default=None, nullable=True)
     user: Optional["User"] = Relationship(back_populates="applications")
