@@ -1,8 +1,9 @@
 from app.tests.factory import user_payload
 import pytest
 from uuid import uuid4
+from app.core.enum import UserRole, ApplicationStatus, ModeOfWork, EmploymentType
 
-@pytest.mark.parametrize("role", ["candidate", "recruiter", "admin"])
+@pytest.mark.parametrize("role", [UserRole.CANDIDATE, UserRole.RECRUITER, UserRole.ADMIN])
 def test_create_company(client, auth_headers, role):
     identity=str(uuid4().hex)
     payload={
@@ -20,7 +21,7 @@ def test_create_company(client, auth_headers, role):
     assert "id" in company_data
     assert "owner_id" in company_data
 
-@pytest.mark.parametrize("role", ["candidate", "recruiter", "admin"])
+@pytest.mark.parametrize("role", [UserRole.CANDIDATE, UserRole.RECRUITER, UserRole.ADMIN])
 def test_get_company_by_id(client, get_created_company, auth_headers, role):
     headers=auth_headers(role)
     company_id = get_created_company["id"]
@@ -33,7 +34,7 @@ def test_get_company_by_id(client, get_created_company, auth_headers, role):
 
 def test_update_company(client, auth_headers, get_created_company):
     company_id = get_created_company["id"]
-    headers = auth_headers("admin")
+    headers = auth_headers(UserRole.ADMIN)
 
     payload = {
         "name": f"NEWNAME_{uuid4()}",
@@ -50,7 +51,7 @@ def test_update_company(client, auth_headers, get_created_company):
     assert data["company_size"] == 100
 
 def test_delete_company(client, auth_headers, get_created_company):
-    headers = auth_headers("admin")
+    headers = auth_headers(UserRole.ADMIN)
     company_id = get_created_company["id"]
     response = client.delete(f"/companies/{company_id}", headers=headers)
     assert response.status_code == 204

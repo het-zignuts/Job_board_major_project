@@ -36,11 +36,11 @@ def list_jobs(session: Session,
     if search_query:
         query = query.where(or_(Job.title.ilike(f"%{search_query}%"), Job.description.ilike(f"%{search_query}%")))
     if location:
-        query = query.where(Job.location == location)
+        query = query.where(Job.location.ilike(f"%{location}%"))
     if mode:
-        query = query.where(Job.mode == mode)
+        query = query.where(Job.mode.lower() == mode.lower())
     if employment_type:
-        query = query.where(Job.employment_type == employment_type)
+        query = query.where(Job.employment_type.lower() == employment_type.lower())
     if tags:
         query = query.where(Job.tags.contains(tags))
     if order_by == "posted_at":

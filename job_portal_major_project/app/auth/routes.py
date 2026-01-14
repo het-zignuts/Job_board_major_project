@@ -29,7 +29,7 @@ def login_user(user: UserCreate, session: Session = Depends(db_session_manager.g
         user_db=get_user_by_email(session, user.email)
         if not user_db:
             raise HTTPException(status_code=400, detail="User not found, please register")
-        access_token = Security.create_access_token({"sub": str(user_db.id), "role": user_db.role, "iat": time.time()})
+        access_token = Security.create_access_token({"sub": str(user_db.id), "role": str(user_db.role), "iat": time.time()})
         print("LOGIN TOKEN ISSUED AT:", int(time.time()))
         refresh_jwt_token = Security.create_refresh_token(str(user_db.id), user_db.role)
         Security.store_refresh_token(token_id=refresh_jwt_token["token_id"], exp_time=refresh_jwt_token["exp"], user_id=user_db.id, session=session)

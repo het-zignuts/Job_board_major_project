@@ -12,7 +12,7 @@ router = APIRouter(prefix="/companies", tags=["Companies"])
 
 @router.post("/", response_model=CompanyResponse, status_code=status.HTTP_201_CREATED)
 def create_company_api(company: CompanyCreate, current_user: User = Depends(get_current_user), session: Session = Depends(db_session_manager.get_session)):
-    if current_user.role not in ("candidate", "recruiter", "admin"):
+    if current_user.role not in (UserRole.RECRUITER, UserRole.ADMIN, UserRole.CANDIDATE):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not allowed to create company")
     created_company = create_company(company, current_user.id, session)
     if created_company is None:

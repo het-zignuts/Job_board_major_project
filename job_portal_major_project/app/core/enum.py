@@ -1,22 +1,22 @@
 from enum import Enum
 
 class UserRole(str, Enum):
-    ADMIN = "admin"
-    RECRUITER = "recruiter"
-    CANDIDATE = "candidate"
+    ADMIN = "ADMIN"
+    RECRUITER = "RECRUITER"
+    CANDIDATE = "CANDIDATE"
 
 class ModeOfWork(str, Enum):
-    ONSITE = "onsite"
-    REMOTE = "remote"
-    HYBRID = "hybrid"
+    ONSITE = "ONSITE"
+    REMOTE = "REMOTE"
+    HYBRID = "HYBRID"
 
 class EmploymentType(str, Enum):
-    FULL_TIME = "full_time"
-    PART_TIME = "part_time"
-    INTERN = "intern"
+    FULL_TIME = "FULL_TIME"
+    PART_TIME = "PART_TIME"
+    INTERN = "INTERN"
 
 class ApplicationStatus(str, Enum):
-    APPLIED = "applied"
-    UNDER_REVIEW = "under_review"
-    REJECTED = "rejected"
-    ACCEPTED= "accepted"
+    APPLIED = "APPLIED"
+    UNDER_REVIEW = "UNDER_REVIEW"
+    REJECTED = "REJECTED"
+    ACCEPTED = "ACCEPTED"
