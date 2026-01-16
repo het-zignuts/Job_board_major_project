@@ -1,7 +1,12 @@
-from uuid import UUID, uuid4
-from app.core.config import Config
-from app.core.enum import UserRole
+"""
+Factory utilities for generating test payloads.
+"""
 
+from uuid import UUID, uuid4
+from job_portal_major_project.app.core.config import Config
+from job_portal_major_project.app.core.enum import UserRole
+
+# Generate a user payload for registration or login tests.
 def user_payload(uname:str|None=None, email:str|None=None, password:str="UserTest@Password123", role:UserRole|None=None, current_organization=None):
     if uname is None:
         uname=str(uuid4().hex)

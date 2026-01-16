@@ -87,17 +87,19 @@ job_portal_major_project
 │   ├── db/
 │   │   ├── session.py ..............(Session Management)
 │   │   └── init_db.py ..............(Database Initializaton)
-│   ├── tests/ ......................(Unit tests)
-│   │   ├── conftest.py 
-│   │   ├── factory.py 
-│   │   ├── test_application.py 
-│   │   ├── test_job.py 
-│   │   ├── test_company.py 
-│   │   ├── test_token.py 
-│   │   └── test_user.py
-│   └── main.py  ....................(Entry Point)
+│   └── tests/ ......................(Unit tests)
+│       ├── conftest.py 
+│       ├── factory.py 
+│       ├── test_application.py 
+│       ├── test_job.py 
+│       ├── test_company.py 
+│       ├── test_token.py 
+│       └── test_user.py
+│   
 ├── requirements.txt 
-└── README.md
+├──README.md
+├──pytest.ini 
+└── main.py .........................(Entry point)
 ```
 
 ## Project and Environment Setup:

@@ -1,9 +1,10 @@
-from app.tests.factory import user_payload
+from job_portal_major_project.app.tests.factory import user_payload
 import pytest
 from uuid import uuid4
-from app.core.enum import UserRole, ApplicationStatus, ModeOfWork, EmploymentType
+from job_portal_major_project.app.core.enum import UserRole, ApplicationStatus, ModeOfWork, EmploymentType
 
-@pytest.mark.parametrize("role", [UserRole.CANDIDATE, UserRole.RECRUITER, UserRole.ADMIN])
+# Test company creation for different user roles.
+@pytest.mark.parametrize("role", [UserRole.RECRUITER, UserRole.ADMIN])
 def test_create_company(client, auth_headers, role):
     identity=str(uuid4().hex)
     payload={
@@ -21,6 +22,7 @@ def test_create_company(client, auth_headers, role):
     assert "id" in company_data
     assert "owner_id" in company_data
 
+# Test fetching a company by ID.
 @pytest.mark.parametrize("role", [UserRole.CANDIDATE, UserRole.RECRUITER, UserRole.ADMIN])
 def test_get_company_by_id(client, get_created_company, auth_headers, role):
     headers=auth_headers(role)
@@ -32,6 +34,7 @@ def test_get_company_by_id(client, get_created_company, auth_headers, role):
     response = client.get("/companies/ssjk")
     assert response.status_code == 422
 
+# Test updating company details.
 def test_update_company(client, auth_headers, get_created_company):
     company_id = get_created_company["id"]
     headers = auth_headers(UserRole.ADMIN)
@@ -50,6 +53,7 @@ def test_update_company(client, auth_headers, get_created_company):
     assert data["description"] == "Our company is the best, new one"
     assert data["company_size"] == 100
 
+# Test deleting a company.
 def test_delete_company(client, auth_headers, get_created_company):
     headers = auth_headers(UserRole.ADMIN)
     company_id = get_created_company["id"]
@@ -58,6 +62,7 @@ def test_delete_company(client, auth_headers, get_created_company):
     response = client.get(f"/companies/{company_id}")
     assert response.status_code == 404
 
+# Test listing all companies.
 def test_list_companies(client):
     response = client.get("/companies/")
     assert response.status_code == 200

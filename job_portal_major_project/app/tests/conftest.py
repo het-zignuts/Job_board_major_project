@@ -1,111 +1,72 @@
+"""
+Pytest configuration and shared fixtures for Job Portal API tests.
+"""
+
 import pytest
 from sqlmodel import Session, create_engine, SQLModel
 from app.db.session import DatabaseSession
 from fastapi.testclient import TestClient
-from app.main import app
-from app.models.user import User
-from app.core.security import Security
+from job_portal_major_project.app.main import app
+from job_portal_major_project.app.models.user import User
+from job_portal_major_project.app.core.security import Security
 from uuid import uuid4 
-from app.core.config import Config
+from job_portal_major_project.app.core.config import Config
 from jose import jwt
-from app.db.session import db_session_manager
-from app.tests.factory import user_payload
+from job_portal_major_project.app.db.session import db_session_manager
+from job_portal_major_project.app.tests.factory import user_payload
 from sqlalchemy import text
-from app.core.enum import UserRole, ApplicationStatus, ModeOfWork, EmploymentType
+from job_portal_major_project.app.core.enum import UserRole, ApplicationStatus, ModeOfWork, EmploymentType
 
+# Force application to run in test mode
 os.environ["ENV"] = "test"
 
+# using test database url
 TEST_DATABASE_URL=Config.TEST_DATABASE_URL
 
+# Create a separate engine for tests
 engine=create_engine(TEST_DATABASE_URL, echo=True)
 
+# Drops and recreates the public schema. Resets DB before every test
 def reset_db(engine):
     with engine.begin() as conn:
         conn.execute(text("DROP SCHEMA public CASCADE"))
         conn.execute(text("CREATE SCHEMA public"))
 
-# engine=db_session_manager.engine
-# print("TEST DB INSTANCE ID:", id(db_session_manager))
-
+# Initializes database schema once per test session.
 @pytest.fixture(scope="session", autouse=True)
 def db_engine():
-    # SQLModel.metadata.drop_all(engine)
     reset_db(engine)
     SQLModel.metadata.create_all(engine)
     yield engine
-    # SQLModel.metadata.drop_all(engine)
     reset_db(engine)
 
+# Provides a SQLModel session bound to the test database.
 @pytest.fixture(scope="session")
 def db_session(db_engine):
     with Session(db_engine) as session:
         yield session       
 
+# Overrides the application's database dependency to use the test database instead of production.
 def override_get_session():
     with Session(engine) as session:
         yield session
 
+# Apply dependency override for all tests
 app.dependency_overrides[db_session_manager.get_session] = override_get_session
 
+# Provides a FastAPI TestClient instance for API testing.
 @pytest.fixture(scope="session")
 def client():
     return TestClient(app)
 
-# @pytest.fixture(scope="function")
-# def test_user(db_session):
-#     user=User(
-#         email= f"test_{uuid4().hex}@pytest.com",
-#         password= Security.hash_password("password@testuser"),
-#         role="user"
-#     )
-#     db_session.add(user)
-#     db_session.commit()
-#     db_session.refresh(user)
-
-#     return {
-#         "id": user.id,
-#         "email": user.email,
-#         "password": "password@testuser"
-#     }
-
-# @pytest.fixture(scope="function")
-# def get_test_tokens(client, test_user):
-#     req_data={
-#         "email": test_user["email"],
-#         "password": test_user["password"]
-#     }
-#     response=client.post("/auth/login", json=req_data)
-#     response_tkns=response.json()
-#     payload = jwt.decode(response_tkns["access_token"], key="", algorithms=[Config.ALGORITHM], options={"verify_signature": False})
-
-#     assert payload["sub"] == str(test_user["id"])
-#     return response.json()
-
-# @pytest.fixture(scope="function")
-# def test_book(client, test_user, get_test_tokens):
-#     try:
-#         access_token = get_test_tokens["access_token"]
-#         header = {"Authorization": f"Bearer {access_token}"}
-#         isbn=str(uuid4().hex)
-#         book_req_data={
-#             "title": "test_book111"+str(uuid4().hex),
-#             "author": "tester",
-#             "isbn": isbn[:10],
-#             "publication_year": 2025,
-#             "owner_id": str(test_user["id"])
-#         }
-#         response=client.post("/books/", json=book_req_data, headers=header)
-#     except Exception as e:
-#         print("Exception: " + e)
-#     response_data=response.json()
-#     return response.json()
-
+#  Factory fixture to generate user registration/login payloads.
 @pytest.fixture
 def user_data_factory():
     def _factory(role=UserRole.CANDIDATE, current_organization=None, **overrides):
         return user_payload(role=role, current_organization=current_organization, **overrides)
     return _factory
 
+# Registers a user via API and returns the created user response.
 @pytest.fixture
 def get_registered_user(client, user_data_factory):
     def _factory(role=UserRole.CANDIDATE, **overrides):
@@ -115,6 +76,7 @@ def get_registered_user(client, user_data_factory):
         return response.json()
     return _factory
 
+# Logs in a registered user and returns access & refresh tokens.
 @pytest.fixture
 def login_and_get_tokens(client, get_registered_user, user_data_factory):
     def _factory(role=UserRole.CANDIDATE, **overrides):
@@ -125,6 +87,7 @@ def login_and_get_tokens(client, get_registered_user, user_data_factory):
         return response.json()
     return _factory
 
+# Generates Authorization headers containing a valid access token.
 @pytest.fixture
 def auth_headers(login_and_get_tokens):
     def _factory(role=UserRole.CANDIDATE, **overrides):
@@ -132,6 +95,7 @@ def auth_headers(login_and_get_tokens):
         return {"Authorization": f"Bearer {tokens['access_token']}"}
     return _factory
 
+# Returns a sample payload for company creation.
 @pytest.fixture
 def company_payload():
     return {
@@ -143,6 +107,7 @@ def company_payload():
         "company_size": 50,
     }
 
+# Returns a sample payload for job creation.
 @pytest.fixture
 def job_payload():
     return {
@@ -155,6 +120,7 @@ def job_payload():
     "tags": ["Python", "AI", "ML"]
     }
 
+# Returns multiple job payloads for bulk job creation tests.
 @pytest.fixture
 def jobs_payload():
     return [
@@ -187,10 +153,12 @@ def jobs_payload():
         }
     ]
 
+# Returns a payload for job application submission.
 @pytest.fixture
 def application_payload():
     return {"message": f"A new application - {uuid4().hex}"}
 
+# Creates multiple jobs and returns the list of created jobs.
 @pytest.fixture
 def get_created_jobs_list(client, auth_headers, get_created_company, jobs_payload):
     company_id=get_created_company["id"]
@@ -202,6 +170,7 @@ def get_created_jobs_list(client, auth_headers, get_created_company, jobs_payloa
         jobs_list.append(response.json())
     return jobs_list
 
+# Creates and returns a company as a recruiter.
 @pytest.fixture
 def get_created_company(client, auth_headers, company_payload):
     headers = auth_headers(UserRole.RECRUITER)
@@ -209,6 +178,7 @@ def get_created_company(client, auth_headers, company_payload):
     assert response.status_code == 201
     return response.json()
 
+# Creates and returns a job under an existing company.
 @pytest.fixture
 def get_created_job(client, auth_headers, job_payload, get_created_company):
     company_id=get_created_company["id"]
@@ -217,6 +187,7 @@ def get_created_job(client, auth_headers, job_payload, get_created_company):
     assert response.status_code == 201
     return response.json()
 
+# Creates a temporary directory for resume uploads during tests, uses tmp_path and monkeypatch from pytest
 @pytest.fixture
 def temp_upload_dir(tmp_path, monkeypatch):
     temp_dir = tmp_path / "resumes"
@@ -224,6 +195,7 @@ def temp_upload_dir(tmp_path, monkeypatch):
     monkeypatch.setenv("UPLOAD_RESUME_DIR", str(temp_dir))
     return temp_dir
 
+# Applies to a job with a resume upload and returns the created application.
 @pytest.fixture
 def get_created_application(client, auth_headers, application_payload, get_created_job, temp_upload_dir):
     job_id=get_created_job["id"]

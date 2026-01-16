@@ -1,11 +1,23 @@
-from app.tests.factory import user_payload
+"""
+Tests for authentication endpoints.
 
+Covers:
+- User registration
+- User login
+- Token refresh
+"""
+
+
+from job_portal_major_project.app.tests.factory import user_payload
+
+# Test user registration.
 def test_register(client):
     payload=user_payload()
     response=client.post("/auth/register", json=payload)
     assert response.status_code==200
     return response.json()
 
+# Test user login with valid and invalid credentials.
 def test_login(client):
     reg_payload=user_payload()
     reg_resp=client.post("/auth/register", json=reg_payload)
@@ -21,6 +33,7 @@ def test_login(client):
     response=client.post("/auth/login", json=dirty_payload)
     assert response.status_code==401
 
+# Test refreshing an access token using a refresh token.
 def test_refresh_token(client, login_and_get_tokens):
     tkns=login_and_get_tokens()
     refresh_tkn=tkns["refresh_token"]

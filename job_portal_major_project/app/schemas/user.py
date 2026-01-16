@@ -1,10 +1,18 @@
+"""
+Pydantic schemas for user-related API operations.
+
+These schemas define the request and response structures used for
+creating, updating, and retrieving user data.
+"""
+
 from pydantic import BaseModel, Field   
 from typing import Optional
-from app.core.enum import UserRole
+from job_portal_major_project.app.core.enum import UserRole
 from datetime import datetime
 from uuid import UUID
 
 class UserCreate(BaseModel):
+    # SCHEMA FOR USER REGISTRATION
     user_name : str
     email : str
     password : str
@@ -12,6 +20,7 @@ class UserCreate(BaseModel):
     current_organization : Optional[UUID] = None 
 
 class UserUpdate(BaseModel):
+    # SCHEMAS FOR USER UPDATE
     user_name : str
     email : str
     password : str
@@ -19,6 +28,7 @@ class UserUpdate(BaseModel):
     current_organization : Optional[UUID] = None 
 
 class UserResponse(BaseModel):
+    # SCHEMA FOR USER API RESPONSES 
     id : UUID
     user_name : str
     email : str
