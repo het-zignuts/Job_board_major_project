@@ -19,11 +19,11 @@ def on_startup():
     init_db() # Establish database connections on startup
 
 # Registering all API routers
+app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(company_router)
 app.include_router(job_router)
 app.include_router(application_router)
-app.include_router(auth_router)
 
 # Enable pagination globally for supported endpoints
 add_pagination(app)
