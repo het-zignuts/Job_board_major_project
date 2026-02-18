@@ -142,12 +142,16 @@ The server starts running on (https://127.0.0.1:8000)
 - Swagger UI → https://127.0.0.1:8000/docs
 - ReDoc → https://127.0.0.1:8000/redoc
 
-## Database Setup (Persistent Database: PostgreSQL):
+## Database Setup (Persistent Database: PostgreSQL). (Run each of these commands in terminal.):
 
 ```psql
-CREATE USER job_portal_user WITH PASSWORD 'password';
-CREATE DATABASE job_portal OWNER job_portal_user;
-GRANT ALL PRIVILEGES ON DATABASE job_portal TO job_portal_user;
+CREATE USER job_user WITH PASSWORD 'your_password';
+CREATE DATABASE job_board OWNER job_user;
+GRANT ALL PRIVILEGES ON DATABASE job_board TO job_user;
+\q
+psql -U job_user -d job_board
+GRANT ALL ON SCHEMA public TO job_user;
+ALTER SCHEMA public OWNER TO job_user;
 ```
 #### For tests, a separate test database is used and reset automatically.
 

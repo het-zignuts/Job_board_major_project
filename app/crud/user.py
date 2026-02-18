@@ -59,16 +59,12 @@ def update_user(user_id: UUID, new_user: UserUpdate, session: Session) -> Option
     if not user:
         return None
     # set only those fields which are passed as request
-    if new_user.user_name != None:
-        user.user_name=new_user.user_name
-    if new_user.email != None:
-        user.email=new_user.email
-    if new_user.password != None:
-        user.password=Security.hash_password(new_user.password)
-    if new_user.role != None:
-        user.role=new_user.role
-    if new_user.current_organization != None:
-        user.current_organization=new_user.current_organization
+    update_data = new_user.model_dump(exclude_unset=True)
+    if "password" in update_data:
+        update_data["password"] = Security.hash_password(update_data["password"])
+    for key, value in update_data.items():
+        setattr(user, key, value)
+
     user.updated_at=datetime.now(timezone.utc) # set updated time for user
     session.add(user)
     session.commit()

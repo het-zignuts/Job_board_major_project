@@ -10,9 +10,11 @@ from typing import Optional
 from uuid import UUID
 from datetime import datetime, timezone
 from app.models.company import Company
+from app.models.job import Job
 from app.models.user import User
 from app.schemas.company import CompanyCreate, CompanyUpdate, CompanyResponse
 from app.core.security import Security
+from app.crud.job import *
 
 # company creation business logic
 def create_company(company: CompanyCreate, owner_id: UUID, session: Session) -> CompanyResponse:
@@ -57,6 +59,9 @@ def delete_company(company_id: UUID, session: Session) -> bool:
     for user in users:
         user.current_organization = None
     company=session.exec(select(Company).where(Company.id==company_id)).first()
+    jobs=session.exec(select(Job).where(Job.company_id == company_id)).all() # retrieve associated jobs
+    for job in jobs:
+        delete_job(job.id, session)
     if not company:
         return False
     session.delete(company)
